@@ -1,40 +1,59 @@
 # tp-llm-owen
 
-## I - Installation
+This project provides an interactive command-line interface (CLI) written in Rust to communicate with a local vision-capable Large Language Model (LLM) hosted via LM Studio. It allows users to send prompts alongside images or PDFs to the local model and handle the output seamlessly.
 
-*L'installation ne parlera que de LM Studio, si vous utilisez Ollama ou un autre outil, vous devez vous adapter en conséquence.*
+## I - Prerequisites & LM Studio Setup
 
-Donc vous aurez besoin de LM Studio pour la suite.
+To reproduce and test this project, you need to set up LM Studio on your machine:
 
-Je vous recommande fortement d'utiliser le LLM `gemma-4-e4b` de Google.
+1. **Install LM Studio**: Download and install the software from [https://lmstudio.ai/](https://lmstudio.ai/).
+2. **Download a Vision-Capable Model**:
+   * Open LM Studio and navigate to the search tab.
+   * Look for a multimodal/vision model (such as `gemma-4-e4b` or any compatible model like `llava`).
+   * Download the model files.
+3. **Start the Local API Server**:
+   * Open your terminal or PowerShell and run the following command to spin up the server:
+     ```powershell
+     lms server start
+     ```
+   * Alternatively, go to the **Local Server** tab (developer icon) inside the LM Studio GUI and click **Start Server**. It will expose an OpenAI-compatible endpoint at `http://localhost:1234/v1/chat/completions`.
 
-Pour la suite je vous recommande de faire la commande:
-```powershell
-lms server start
-```
+## II - Installation & Execution
 
-C'est tout pour l'installation coté LM Studio et des endpoints, pour ce qui est de ce repo vous aurez besoin des dépendances pour faire tourner du code Rust.
-<!--
-TODO: Ajoutez une release pour juste installer un exe
--->
+This repository requires the Rust toolchain (Cargo) to be installed on your computer.
 
-Ensuite il vous suffit de cloner ou bien de fork le repo puis d'aller à la racine et de faire la commande:
+1. Clone or fork this repository:
+   ```bash
+   git clone <repository-url>
+   cd tp-llm-owen
+    ```
+2. Build and run the application in release mode:
+
 ```powershell
 cargo run --release
 ```
 
-Et vous avez le code de lancer, si vous avez des erreurs n'hésitez pas à faire une issue
+## III - How to Use & Testing
 
-## II - Utilisation
+The user experience is interactive thanks to the inquire crate. When launching the tool, follow these steps:
 
-L'utilisation à été simplifiée via la crate [inquire](https://crates.io/crates/inquire) donc même sans lire cette section vous devriez vous en sortir.
+1. **Select Prompt Source**: Choose whether you want to type your prompt directly in the Terminal or load it from a Text/CSV file.
 
-Sinon l'outil vous permets de prompt une IA via un fichier ou votre terminal, puis d'envoyer une image ou un PDF à votre IA afin de l'analyser.
+2. **Provide File Path**: Provide the path to the image or PDF file you want to analyze.
 
-Vous pouvez ensuite choisir d'afficher oui ou non la réponse.
+3. **Choose Output Destination**: Choose to display the model's answer directly in the Terminal or save it into an external Output file (txt).
 
-## III - Autre
+### Standard Test Case
 
-Actuellement des améliorations sont en cours comme:
-- Pick un ou des fichiers dont vous pouvez envoyer le contenu (png, jpeg, pdf) plutôt que de mettre le path à la main
-- Enlever le markdown des réponses du LLM car non pris en compte dans l'affichage
+A sample image is included at the root of the repository to easily verify that your application works perfectly:
+
+- Test Image Path: assets/images/will-shrek.jpg
+
+- Recommended Test Prompt: "Describe what you see in this image in detail and explain the context or humor behind it if applicable."
+
+## IV - Future Improvements
+
+- Implement a native file picker to select assets (.png, .jpeg, .pdf) instead of entering manual text paths.
+
+- Strip Markdown formatting elements from the terminal response to optimize text readability.
+
