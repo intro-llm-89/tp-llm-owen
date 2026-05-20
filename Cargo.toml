@@ -1,0 +1,23 @@
+[package]
+name = "tp-llm"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# To send HTTP requests for LM Studio
+reqwest = { version = "0.13.3", features = ["json", "multipart"] }
+
+# To manipulate JSON
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Better user xp
+inquire = "0.9.4"
+
+# Encode image
+base64 = "0.22"
+
+tokio = { version = "1", features = ["full"] }
+
+# Read pdf and parse it
+pdf-extract = "0.10.0"
