@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::Write;
 
+// Structure representing the complete payload sent to the LM Studio API
 #[derive(Serialize)]
 struct ChatRequest {
     model: String,
@@ -13,12 +14,14 @@ struct ChatRequest {
     max_tokens: u32,
 }
 
+// Structure representing an individual message in the conversation history
 #[derive(Serialize)]
 struct Message {
     role: String,
     content: Vec<ContentPart>,
 }
 
+// Enum defining the different parts of a multimodal message (text or image)
 #[derive(Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 enum ContentPart {
@@ -26,11 +29,13 @@ enum ContentPart {
     ImageUrl { image_url: ImageUrl },
 }
 
+// Structure holding the base64 data URL for the image
 #[derive(Serialize)]
 struct ImageUrl {
     url: String,
 }
 
+// Structure mapping the response received from the API
 #[derive(Deserialize)]
 struct ChatResponse {
     choices: Vec<Choice>,
@@ -48,6 +53,7 @@ struct ResponseMessage {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // 1. Get the prompt from the user (Terminal input or external file)
     let prompt_source = Select::new(
         "Comment voulez-vous entrer le prompt ?",
         vec!["Terminal", "Fichier texte/csv"],
@@ -61,11 +67,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         fs::read_to_string(&path).expect("Impossible de lire le fichier prompt")
     };
 
+    // 2. Retrieve the image or PDF file path
     let file_path = Text::new("Entrez le chemin vers votre image (ex: image.png) :").prompt()?;
 
+    // 3. Read the file bytes and encode them to base64 string
     let file_bytes = fs::read(&file_path).expect("Impossible de lire le fichier image");
     let base64_file = STANDARD.encode(&file_bytes);
 
+    // 4. Determine the appropriate MIME type based on the file extension
     let mime_type = if file_path.ends_with(".png") {
         "image/png"
     } else if file_path.ends_with(".pdf") {
@@ -74,8 +83,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "image/jpeg"
     };
 
+    // Construct the standard Data URL format
     let data_url = format!("data:{};base64,{}", mime_type, base64_file);
 
+    // 5. Format and build the request payload for LM Studio
     let request_body = ChatRequest {
         model: "local-model".to_string(),
         messages: vec![Message {
@@ -91,6 +102,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         max_tokens: 200,
     };
 
+    // 6. Send the HTTP POST request asynchronously to the local server
     println!("⏳ Envoi de la requête à LM Studio (http://localhost:1234/v1/chat/completions)...");
     let client = Client::new();
     let res = client
@@ -99,14 +111,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .send()
         .await?;
 
+    // Handle potential API server errors
     if !res.status().is_success() {
         eprintln!("❌ Erreur API : {:?}", res.text().await?);
         return Ok(());
     }
 
+    // 7. Parse the JSON response and extract the generated text
     let response_data: ChatResponse = res.json().await?;
     let llm_reply = &response_data.choices[0].message.content;
 
+    // 8. Ask the user where they want to display or save the result
     let output_choice = Select::new(
         "Où voulez-vous afficher la réponse ?",
         vec!["Terminal", "Fichier de sortie (txt)"],
