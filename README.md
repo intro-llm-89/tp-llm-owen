@@ -51,9 +51,19 @@ A sample image is included at the root of the repository to easily verify that y
 
 - Recommended Test Prompt: "Describe what you see in this image in detail and explain the context or humor behind it if applicable."
 
+### Testing weather app
+
+A sample weather test case is included to verify that the weather tool works correctly:
+
+- Test Prompt: "What's the weather like in Paris?"
+- Expected Output: The model should respond with the current weather conditions in Paris.
+- Actual Output: The model responded with the current weather conditions in Paris.
+
+>[!NOTE]
+> Actually you can't ask for weather today, it's only for today.
+
 ## IV - Future Improvements
 
 - Implement a native file picker to select assets (.png, .jpeg, .pdf) instead of entering manual text paths.
 
 - Strip Markdown formatting elements from the terminal response to optimize text readability.
-
